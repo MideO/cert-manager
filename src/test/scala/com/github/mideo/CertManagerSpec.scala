@@ -5,7 +5,7 @@ import java.security.cert.Certificate
 
 class CertManagerSpec extends TestSpec {
 
-  behavior of "CertManagerSpec"
+  behavior of "CertManager"
   private def getResourceFile(name:String): InputStream ={
     getClass.getClassLoader.getResourceAsStream(name)
   }
