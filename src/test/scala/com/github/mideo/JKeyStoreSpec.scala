@@ -18,7 +18,8 @@ class JKeyStoreSpec extends TestSpec {
 
   it should "load" in {
     //Given
-    JKeyStore.create(new FileOutputStream(testKeyStoreName), password)
+    val f = new FileOutputStream(testKeyStoreName)
+    JKeyStore.create(f, password).store(f, password.toCharArray)
 
     //When
     val keyStore = JKeyStore.load(new FileInputStream(testKeyStoreName), password)
@@ -30,7 +31,8 @@ class JKeyStoreSpec extends TestSpec {
 
   it should "delete" in {
     //Given
-    JKeyStore.create(new FileOutputStream(testKeyStoreName), password)
+    val f = new FileOutputStream(testKeyStoreName)
+    JKeyStore.create(f, password).store(f, password.toCharArray)
 
     //When
     JKeyStore.delete(testKeyStoreName)

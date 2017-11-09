@@ -26,13 +26,14 @@ class CertManager(keyStoreManager: KeyStoreManager) {
       keyStore.setCertificateEntry(certificate.hashCode().toString, certificate)
       keyStore.store(f, password.toCharArray)
     })
-    keyStore.size()
   }
 
   def deleteCertificate(certificate: Certificate, keystoreName: String = "keystore.jks", password: String = "password"): Unit = {
     val f = Files.newInputStream(Paths.get(keystoreName), StandardOpenOption.READ)
     val keyStore = keyStoreManager.load(f, password)
     keyStore.deleteEntry(certificate.hashCode().toString)
+    keyStore.store(new FileOutputStream(keystoreName), password.toCharArray)
+
 
 }
 

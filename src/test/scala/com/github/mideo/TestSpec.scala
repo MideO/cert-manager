@@ -22,10 +22,10 @@ trait TestSpec
     deleteIfFileExist(testKeyStoreName)
   }
 
-//  override def afterEach() {
-//    deleteIfFileExist(testKeyStoreName)
-//  }
-//
+  override def afterEach() {
+    deleteIfFileExist(testKeyStoreName)
+  }
+
 
 
 
