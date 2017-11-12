@@ -1,4 +1,4 @@
-name := "https-cert-manager"
+name := "cert-manager"
 
 version := "0.1"
 

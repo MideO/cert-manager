@@ -6,9 +6,7 @@ import java.security.cert.Certificate
 class CertManagerSpec extends TestSpec {
 
   behavior of "CertManager"
-  private def getResourceFile(name:String): InputStream ={
-    getClass.getClassLoader.getResourceAsStream(name)
-  }
+
 
   it should "saveCertificate" in {
     //Given
