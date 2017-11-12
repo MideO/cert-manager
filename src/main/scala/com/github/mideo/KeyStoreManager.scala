@@ -3,7 +3,7 @@ package com.github.mideo
 import java.security.KeyStore
 import java.security.cert.Certificate
 
-trait KeyStoreManager {
+protected trait KeyStoreManager {
   def create(keystoreAbsolutePath: String, password: String): KeyStore
 
   def load(keyStoreAbsolutePath: String, password: String): KeyStore

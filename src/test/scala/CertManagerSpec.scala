@@ -1,10 +1,11 @@
-package com.github.mideo
-
 import java.security.cert.Certificate
+
+import com.github.mideo.{CertManager, FileSystemJKeyStoreManagerImpl, TestSpec}
 
 class CertManagerSpec extends TestSpec {
 
   behavior of "CertManager"
+  val certManager: CertManager = CertManager(FileSystemJKeyStoreManagerImpl)
 
 
   it should "saveCertificate" in {

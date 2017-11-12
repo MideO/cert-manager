@@ -8,7 +8,7 @@ import java.security.cert.Certificate
 object FileSystemJKeyStoreManagerImpl extends KeyStoreManager {
   val KeyStoreType = "JKS"
 
-  def withCloseable(c: Closeable, func: (Closeable) => Unit): Unit = {
+  private def withCloseable(c: Closeable, func: (Closeable) => Unit): Unit = {
     try {
       func(c)
     } finally {
@@ -47,6 +47,5 @@ object FileSystemJKeyStoreManagerImpl extends KeyStoreManager {
     withCloseable(f, (f) => {
       keyStore.store(f.asInstanceOf[FileOutputStream], password.toCharArray)
     })
-
   }
 }

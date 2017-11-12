@@ -2,9 +2,9 @@ package com.github.mideo
 
 import java.io.InputStream
 import java.nio.file.{Files, Paths}
+import java.security.cert.CertificateFactory
 
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
-import java.security.cert.CertificateFactory
 
 trait TestSpec
   extends FlatSpec
@@ -12,8 +12,6 @@ trait TestSpec
     with Matchers {
 
   val certificateFactory: CertificateFactory = CertificateFactory.getInstance("X.509")
-
-  val certManager: CertManager = CertManager(FileSystemJKeyStoreManagerImpl)
 
   val testKeyStoreName: String = "MyKeyStore.jks"
   val password: String = "Password1"
