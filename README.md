@@ -20,7 +20,7 @@
       certManager.isTrustedCertificate(_, testKeyStoreName, password)
     )
     
-    //or implement you custom KeyStoreManager
+    //or implement custom KeyStoreManager
     object MongoJKeyStoreManagerImpl extends KeyStoreManager {
       override def create(keystoreAbsolutePath: String, password: String): KeyStore = {
         ....
