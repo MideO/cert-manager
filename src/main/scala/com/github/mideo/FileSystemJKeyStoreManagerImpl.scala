@@ -17,20 +17,20 @@ object FileSystemJKeyStoreManagerImpl extends KeyStoreManager {
   }
 
 
-  def create(keystoreAbsolutePath: String, password: String): KeyStore = {
+  override def create(keystoreAbsolutePath: String, password: String): KeyStore = {
     val keyStore: KeyStore = KeyStore.getInstance(KeyStoreType)
     keyStore.load(null, password.toCharArray)
     keyStore
   }
 
-  def load(keystoreAbsolutePath: String, password: String): KeyStore = {
+  override def load(keystoreAbsolutePath: String, password: String): KeyStore = {
     val f = Files.newInputStream(Paths.get(keystoreAbsolutePath), StandardOpenOption.READ)
     val keyStore: KeyStore = KeyStore.getInstance(KeyStoreType)
     keyStore.load(f, password.toCharArray)
     keyStore
   }
 
-  def delete(path: String): Unit = Files.delete(Paths.get(path))
+  override def delete(path: String): Unit = Files.delete(Paths.get(path))
 
   override def isKnownCertificate(certificate: Certificate, keystoreName: String, password: String): Boolean = {
     if (!Files.exists(Paths.get(keystoreName))) {
