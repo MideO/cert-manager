@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/MideO/cert-manager.svg?branch=master)](https://travis-ci.org/MideO/cert-manager)
 
-###### A Certificate manager backed by Java KeyStore on file system as default storage
+###### Certificate management module backed by Java KeyStore on file system as default storage
 
 ###### Usage
 
