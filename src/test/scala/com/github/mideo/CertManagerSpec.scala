@@ -1,6 +1,5 @@
 package com.github.mideo
 
-import java.io.InputStream
 import java.security.cert.Certificate
 
 class CertManagerSpec extends TestSpec {
