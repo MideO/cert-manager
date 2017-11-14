@@ -1,23 +1,23 @@
-#### Certificate Manager
+#### keystore Manager
 
-[![Build Status](https://travis-ci.org/MideO/cert-manager.svg?branch=master)](https://travis-ci.org/MideO/cert-manager)
+[![Build Status](https://travis-ci.org/MideO/keystore-manager.svg?branch=master)](https://travis-ci.org/MideO/cert-manager)
 
-###### Certificate management module backed by Java KeyStore on file system as default storage
+###### Key management module backed by Java KeyStore on file system as default storage
 
 ###### Usage
 
 ```scala
     //save certficatificate
     val certificates: Array[Certificate] = 	httpsURLConnection.getServerCertificates()
-    val certManager: CertManager = CertManager(FileSystemJKeyStoreManagerImpl)
+    val certManager: KeyStoreEntryManager = KeyStoreEntryManager.CertificateManager(KeyStoreManager.FileSystemJKeyStoreManager)
     
     certificates.foreach(
       certManager.saveCertificate(_, testKeyStoreName, password)
     )
     
-    //Check certificate is trusted i.e. saved
+    //Check certificate is known
     certificates.foreach(
-      certManager.isTrustedCertificate(_, testKeyStoreName, password)
+      certManager.isKnown(_, testKeyStoreName, password)
     )
     
     //or implement custom KeyStoreManager
@@ -44,7 +44,7 @@
      
     }
     
-    val mongoCertManager: CertManager = CertManager(MongoJKeyStoreManagerImpl)
+    val mongoCertManager: KeyStoreEntryManager = KeyStoreEntryManager.CertificateManager(MongoJKeyStoreManagerImpl)
     
     
     

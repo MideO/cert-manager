@@ -1,4 +1,4 @@
-name := "cert-manager"
+name := "keystore-manager"
 
 scalaVersion := "2.11.12"
 
