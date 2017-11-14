@@ -1,12 +1,13 @@
 import java.security.cert.Certificate
 
-import com.github.mideo.keystore.{KeyStoreEntryManager, KeyStoreManager}
 import com.github.mideo.TestSpec
+import com.github.mideo.keystore.{KeyStoreEntryManager, KeyStoreManager}
 
 class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
 
   behavior of "CertificateManager"
-  val certificateManager: KeyStoreEntryManager[Certificate] = KeyStoreEntryManager.CertificateManager(KeyStoreManager.FileSystemJKeyStoreManager)
+  val certificateManager: KeyStoreEntryManager[Certificate] = KeyStoreEntryManager
+    .CertificateManager(KeyStoreManager.FileSystemJKeyStoreManager, testKeyStoreName, password)
 
 
   it should "saveCertificate" in {
@@ -14,10 +15,10 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
     val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
 
     //When
-    certificateManager.save(certificate, testKeyStoreName, password)
+    certificateManager.save(certificate)
 
     //Then
-    certificateManager.isKnown(certificate, testKeyStoreName, password) should be(true)
+    certificateManager.isKnown(certificate) should be(true)
 
   }
 
@@ -27,7 +28,7 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
 
 
     //Then
-    certificateManager.isKnown(certificate, testKeyStoreName, password) should be(false)
+    certificateManager.isKnown(certificate) should be(false)
 
   }
 
@@ -36,17 +37,17 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
     val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
 
     //When
-    certificateManager.save(certificate, testKeyStoreName, password)
+    certificateManager.save(certificate)
 
     //Then
-    certificateManager.isKnown(certificate, testKeyStoreName, password) should be(true)
+    certificateManager.isKnown(certificate) should be(true)
 
     //When
-    certificateManager.delete(certificate, testKeyStoreName, password)
+    certificateManager.delete(certificate)
 
 
     //Then
-    certificateManager.isKnown(certificate, testKeyStoreName, password) should be(false)
+    certificateManager.isKnown(certificate) should be(false)
 
 
 

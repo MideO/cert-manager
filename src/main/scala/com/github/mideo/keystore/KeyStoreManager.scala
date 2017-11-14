@@ -22,6 +22,8 @@ trait KeyStoreManager {
 
   def isKnownCertificate(certificate: Certificate, keystoreName: String = "keystore.jks", password: String = "password"): Boolean
 
+  def isKnownEntry(entryName: String, keystoreName: String = "keystore.jks", password: String = "password"): Boolean
+
   def delete(path: String): Unit
 
   def save(keyStore: KeyStore, keystoreName: String, password: String): Unit
@@ -79,5 +81,14 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
 
   override def keyStoreExists(keyStoreAbsolutePath: String):Boolean = {
     Files.exists(Paths.get(keyStoreAbsolutePath))
+  }
+
+  override def isKnownEntry(entryName: String, keystoreName: String, password: String):Boolean = {
+    if (!keyStoreExists(keystoreName)) {
+      return false
+    }
+    val keyStore = load(keystoreName, password)
+    keyStore.isKeyEntry(entryName)
+
   }
 }

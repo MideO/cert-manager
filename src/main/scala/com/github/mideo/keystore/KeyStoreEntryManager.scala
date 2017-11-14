@@ -1,47 +1,60 @@
 package com.github.mideo.keystore
 
 import java.security.KeyStore
+import java.security.KeyStore.{PasswordProtection, PrivateKeyEntry}
 import java.security.cert.Certificate
 
 object KeyStoreEntryManager {
-  def CertificateManager(keyStoreManager: KeyStoreManager): KeyStoreEntryManager[Certificate] = new CertificateKeyStoreEntryManagerImpl(keyStoreManager)
+  def CertificateManager(keyStoreManager: KeyStoreManager,
+                         keystoreName: String = "keystore.jks",
+                         password: String = "password"): KeyStoreEntryManager[Certificate] = new CertificateKeyStoreEntryManagerImpl(keyStoreManager, keystoreName, password)
+
+  def PrivateKeyEntryManager(keyStoreManager: KeyStoreManager,
+                         keystoreName: String = "keystore.jks",
+                         password: String = "password"): KeyStoreEntryManager[PrivateKeyEntry] = new PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager, keystoreName, password)
 }
 
 trait KeyStoreEntryManager[Entry] {
-  val manager: KeyStoreManager
+  val Manager: KeyStoreManager
+  val KeystoreName:String
+  val Password:String
 
-  def save(entry: Entry, keystoreName: String = "keystore.jks", password: String = "password"): Unit = {
+  def save(entry: Entry): Unit = {
 
-    val keyStore: KeyStore = if (manager.keyStoreExists(keystoreName)) {
-      manager.load(keystoreName, password)
+    val keyStore: KeyStore = if (Manager.keyStoreExists(KeystoreName)) {
+      Manager.load(KeystoreName, Password)
     } else {
-      manager.create(keystoreName, password)
+      Manager.create(KeystoreName, Password)
     }
     doSave(entry, keyStore)
-    manager.save(keyStore, keystoreName, password)
+    Manager.save(keyStore, KeystoreName, Password)
   }
 
-  def delete(entry: Entry, keystoreName: String = "keystore.jks", password: String = "password"): Unit = {
-    val keyStore: KeyStore = manager.load(keystoreName, password)
+  def delete(entry: Entry): Unit = {
+    val keyStore: KeyStore = Manager.load(KeystoreName, Password)
     doDelete(entry, keyStore)
-    manager.save(keyStore, keystoreName, password)
+    Manager.save(keyStore, KeystoreName, Password)
 
   }
 
-  def isKnown(entry: Entry, keystoreName: String = "keystore.jks", password: String = "password"): Boolean = {
-    checkIsKnown(entry, keystoreName, password)
+  def isKnown(entry: Entry): Boolean = {
+    checkIsKnown(entry)
   }
 
   def doSave(entry: Entry, keyStore: KeyStore)
 
   def doDelete(entry: Entry, keyStore: KeyStore)
 
-  def checkIsKnown(entry: Entry, keystoreName: String = "keystore.jks", password: String = "password"): Boolean
+  def checkIsKnown(entry: Entry): Boolean
 }
 
-private[keystore] class CertificateKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager) extends KeyStoreEntryManager[Certificate] {
+private[keystore]
+class CertificateKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
+  extends KeyStoreEntryManager[Certificate] {
 
-  override val manager: KeyStoreManager = keyStoreManager
+  override val Manager: KeyStoreManager = keyStoreManager
+  override val KeystoreName:String= keystoreName
+  override val Password:String= password
 
   override def doSave(certificate: Certificate, keyStore: KeyStore): Unit = {
     keyStore.setCertificateEntry(certificate.hashCode().toString, certificate)
@@ -51,9 +64,33 @@ private[keystore] class CertificateKeyStoreEntryManagerImpl(keyStoreManager: Key
     keyStore.deleteEntry(certificate.hashCode().toString)
   }
 
-  override def checkIsKnown(certificate: Certificate, keystoreName: String, password: String): Boolean = {
-    manager.isKnownCertificate(certificate, keystoreName, password)
+  override def checkIsKnown(certificate: Certificate): Boolean = {
+    Manager.isKnownCertificate(certificate, keystoreName, password)
 
   }
+
 }
 
+
+private[keystore] class PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
+  extends KeyStoreEntryManager[PrivateKeyEntry] {
+
+  override val Manager: KeyStoreManager = keyStoreManager
+  override val KeystoreName: String = keystoreName
+  override val Password: String = password
+
+  override def doSave(privateKeyEntry: PrivateKeyEntry, keyStore: KeyStore): Unit = {
+    val protectionParam: KeyStore.ProtectionParameter = new PasswordProtection(Password.toCharArray)
+    keyStore.setEntry(privateKeyEntry.hashCode().toString, privateKeyEntry, protectionParam)
+  }
+
+  override def doDelete(privateKeyEntry: PrivateKeyEntry, keyStore: KeyStore): Unit = {
+        keyStore.deleteEntry(privateKeyEntry.hashCode().toString)
+  }
+
+  override def checkIsKnown(privateKeyEntry: PrivateKeyEntry): Boolean = {
+        Manager.isKnownEntry(privateKeyEntry.hashCode().toString, keystoreName, password)
+  }
+
+
+}

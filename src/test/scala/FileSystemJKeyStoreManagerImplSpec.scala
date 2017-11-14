@@ -3,9 +3,11 @@ package com.github.mideo
 import java.io.FileOutputStream
 import java.nio.file.{Files, Paths}
 import java.security.KeyStore
+import java.security.KeyStore.PrivateKeyEntry
 import java.security.cert.Certificate
 
 import com.github.mideo.keystore.KeyStoreManager
+import sun.security.tools.keytool.CertAndKeyGen
 
 class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
   val keyStoreManager:KeyStoreManager = KeyStoreManager.FileSystemJKeyStoreManager
@@ -84,6 +86,29 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     //Then
     keyStoreManager.isKnownCertificate(certificate, testKeyStoreName, password) should be (false)
     keyStoreManager.isKnownCertificate(certificate, "someUnKnownCertificate", "pass") should be (false)
+
+  }
+
+  it should "isKnownEntry" in {
+    //Given
+    val keyStore = keyStoreManager.create(testKeyStoreName, password)
+
+    val gen = new CertAndKeyGen("RSA", "SHA1WithRSA")
+    gen.generate(1024)
+    val key = gen.getPrivateKey
+    val cert: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
+
+    val protParam = new KeyStore.PasswordProtection(password.toCharArray)
+
+    //When
+    keyStore.setEntry(key.hashCode().toString, new PrivateKeyEntry(key, Array(cert)), protParam)
+
+    keyStoreManager.save(keyStore, testKeyStoreName, password)
+
+
+    //Then
+    keyStoreManager.isKnownEntry(key.hashCode().toString,  testKeyStoreName, password) should be (true)
+
 
   }
 
