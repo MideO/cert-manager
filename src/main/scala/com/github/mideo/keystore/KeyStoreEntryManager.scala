@@ -1,7 +1,7 @@
 package com.github.mideo.keystore
 
 import java.security.KeyStore
-import java.security.KeyStore.{PasswordProtection, PrivateKeyEntry}
+import java.security.KeyStore.{PasswordProtection, PrivateKeyEntry, SecretKeyEntry}
 import java.security.cert.Certificate
 
 object KeyStoreEntryManager {
@@ -16,22 +16,23 @@ object KeyStoreEntryManager {
 
 trait KeyStoreEntryManager[Entry] {
   val Manager: KeyStoreManager
+  val keyStoreType:String = KeyStoreTypes.DefaultKeyStoreType
   val KeystoreName:String
   val Password:String
 
   def save(entry: Entry): Unit = {
 
     val keyStore: KeyStore = if (Manager.keyStoreExists(KeystoreName)) {
-      Manager.load(KeystoreName, Password)
+      Manager.load(KeystoreName, Password, keyStoreType)
     } else {
-      Manager.create(KeystoreName, Password)
+      Manager.create(KeystoreName, Password, keyStoreType)
     }
     doSave(entry, keyStore)
     Manager.save(keyStore, KeystoreName, Password)
   }
 
   def delete(entry: Entry): Unit = {
-    val keyStore: KeyStore = Manager.load(KeystoreName, Password)
+    val keyStore: KeyStore = Manager.load(KeystoreName, Password, keyStoreType)
     doDelete(entry, keyStore)
     Manager.save(keyStore, KeystoreName, Password)
 
@@ -89,8 +90,29 @@ private[keystore] class PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager:
   }
 
   override def checkIsKnown(privateKeyEntry: PrivateKeyEntry): Boolean = {
-        Manager.isKnownEntry(privateKeyEntry.hashCode().toString, keystoreName, password)
+        Manager.isKnownEntry(privateKeyEntry.hashCode().toString, keystoreName, password, keyStoreType)
+  }
+}
+
+
+private[keystore] class SecretKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
+  extends KeyStoreEntryManager[SecretKeyEntry] {
+
+  override val Manager: KeyStoreManager = keyStoreManager
+  override val KeystoreName: String = keystoreName
+  override val Password: String = password
+  override val keyStoreType:String = KeyStoreTypes.SecretKeyStoreType
+
+  override def doSave(secretKeyEntry: SecretKeyEntry, keyStore: KeyStore): Unit = {
+    val protectionParam: KeyStore.ProtectionParameter = new PasswordProtection(Password.toCharArray)
+    keyStore.setEntry(secretKeyEntry.hashCode().toString, secretKeyEntry, protectionParam)
   }
 
+  override def doDelete(secretKeyEntry: SecretKeyEntry, keyStore: KeyStore): Unit = {
+    keyStore.deleteEntry(secretKeyEntry.hashCode().toString)
+  }
 
+  override def checkIsKnown(secretKeyEntry: SecretKeyEntry): Boolean = {
+    Manager.isKnownEntry(secretKeyEntry.hashCode().toString, keystoreName, password, keyStoreType)
+  }
 }

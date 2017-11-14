@@ -1,6 +1,6 @@
 #### keystore Manager
 
-[![Build Status](https://travis-ci.org/MideO/keystore-manager.svg?branch=master)](https://travis-ci.org/MideO/cert-manager)
+[![Build Status](https://travis-ci.org/MideO/keystore-manager.svg?branch=master)](https://travis-ci.org/MideO/keystore-manager)
 
 ###### Key management module backed by Java KeyStore on file system as default storage
 

@@ -10,7 +10,7 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
     .CertificateManager(KeyStoreManager.FileSystemJKeyStoreManager, testKeyStoreName, password)
 
 
-  it should "saveCertificate" in {
+  it should "save" in {
     //Given
     val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
 
@@ -22,7 +22,7 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
 
   }
 
-  it should "isTrustedCertificate" in {
+  it should "isKnown" in {
     //When
     val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
 
@@ -32,7 +32,7 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
 
   }
 
-  it should "deleteCertificate" in {
+  it should "delete" in {
     //Given
     val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
 
