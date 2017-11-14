@@ -2,6 +2,8 @@ package com.github.mideo
 
 import java.security.cert.Certificate
 
+import com.github.mideo.keystore.KeyStoreManager
+
 object CertManager {
   def apply(keyStoreManager: KeyStoreManager): CertManager = new CertManager(keyStoreManager)
 }

@@ -1,11 +1,12 @@
-package com.github.mideo
+package com.github.mideo.keystore
 
-import java.io.{Closeable, FileOutputStream}
+import java.io.{Closeable, FileOutputStream, InputStream}
 import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.security.KeyStore
 import java.security.cert.Certificate
 
-object FileSystemJKeyStoreManagerImpl extends KeyStoreManager {
+private[mideo] object FileSystemJKeyStoreManagerImpl
+  extends KeyStoreManager {
   val KeyStoreType = "JKS"
 
   private def withCloseable(c: Closeable, func: (Closeable) => Unit): Unit = {
@@ -24,9 +25,12 @@ object FileSystemJKeyStoreManagerImpl extends KeyStoreManager {
   }
 
   override def load(keystoreAbsolutePath: String, password: String): KeyStore = {
-    val f = Files.newInputStream(Paths.get(keystoreAbsolutePath), StandardOpenOption.READ)
+    val f: InputStream = Files.newInputStream(Paths.get(keystoreAbsolutePath), StandardOpenOption.READ)
     val keyStore: KeyStore = KeyStore.getInstance(KeyStoreType)
-    keyStore.load(f, password.toCharArray)
+    withCloseable(f, (f) => {
+      keyStore.load(f.asInstanceOf[InputStream], password.toCharArray)
+
+    })
     keyStore
   }
 

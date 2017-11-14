@@ -5,6 +5,8 @@ import java.nio.file.{Files, Paths}
 import java.security.KeyStore
 import java.security.cert.Certificate
 
+import com.github.mideo.keystore.FileSystemJKeyStoreManagerImpl
+
 class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
   behavior of "FileSystemJKeyStoreManagerImpl"
 

@@ -1,6 +1,7 @@
 import java.security.cert.Certificate
 
-import com.github.mideo.{CertManager, FileSystemJKeyStoreManagerImpl, TestSpec}
+import com.github.mideo.keystore.FileSystemJKeyStoreManagerImpl
+import com.github.mideo.{CertManager, TestSpec}
 
 class CertManagerSpec extends TestSpec {
 

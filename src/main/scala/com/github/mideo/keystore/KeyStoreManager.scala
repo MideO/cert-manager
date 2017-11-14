@@ -1,9 +1,9 @@
-package com.github.mideo
+package com.github.mideo.keystore
 
 import java.security.KeyStore
 import java.security.cert.Certificate
 
-protected trait KeyStoreManager {
+trait KeyStoreManager {
   def create(keystoreAbsolutePath: String, password: String): KeyStore
 
   def load(keyStoreAbsolutePath: String, password: String): KeyStore
