@@ -35,7 +35,7 @@ trait KeyStoreManager {
   def save(keyStore: KeyStore, keystoreName: String, password: String): Unit
 }
 
-
+//TODO: Error handling
 private[keystore] object FileSystemJKeyStoreManagerImpl
   extends KeyStoreManager {
 

@@ -9,9 +9,14 @@ object KeyStoreEntryManager {
                          keystoreName: String = "keystore.jks",
                          password: String = "password"): KeyStoreEntryManager[Certificate] = new CertificateKeyStoreEntryManagerImpl(keyStoreManager, keystoreName, password)
 
+
   def PrivateKeyEntryManager(keyStoreManager: KeyStoreManager,
                          keystoreName: String = "keystore.jks",
                          password: String = "password"): KeyStoreEntryManager[PrivateKeyEntry] = new PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager, keystoreName, password)
+
+  def SecretKeyEntryManager(keyStoreManager: KeyStoreManager,
+                             keystoreName: String = "keystore.jks",
+                             password: String = "password"): KeyStoreEntryManager[SecretKeyEntry] = new SecretKeyEntryKeyStoreEntryManagerImpl(keyStoreManager, keystoreName, password)
 }
 
 trait KeyStoreEntryManager[Entry] {
@@ -33,7 +38,7 @@ trait KeyStoreEntryManager[Entry] {
 
   def delete(entry: Entry): Unit = {
     val keyStore: KeyStore = Manager.load(KeystoreName, Password, keyStoreType)
-    doDelete(entry, keyStore)
+    keyStore.deleteEntry(entry.hashCode().toString)
     Manager.save(keyStore, KeystoreName, Password)
 
   }
@@ -44,7 +49,7 @@ trait KeyStoreEntryManager[Entry] {
 
   def doSave(entry: Entry, keyStore: KeyStore)
 
-  def doDelete(entry: Entry, keyStore: KeyStore)
+  def doDelete(entry: Entry, keyStore: KeyStore) = keyStore.deleteEntry(entry.hashCode().toString)
 
   def checkIsKnown(entry: Entry): Boolean
 }
@@ -61,10 +66,6 @@ class CertificateKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keys
     keyStore.setCertificateEntry(certificate.hashCode().toString, certificate)
   }
 
-  override def doDelete(certificate: Certificate, keyStore: KeyStore): Unit = {
-    keyStore.deleteEntry(certificate.hashCode().toString)
-  }
-
   override def checkIsKnown(certificate: Certificate): Boolean = {
     Manager.isKnownCertificate(certificate, keystoreName, password)
 
@@ -72,8 +73,9 @@ class CertificateKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keys
 
 }
 
-
-private[keystore] class PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
+//TODO: Coverage
+private[keystore]
+class PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
   extends KeyStoreEntryManager[PrivateKeyEntry] {
 
   override val Manager: KeyStoreManager = keyStoreManager
@@ -84,18 +86,14 @@ private[keystore] class PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager:
     val protectionParam: KeyStore.ProtectionParameter = new PasswordProtection(Password.toCharArray)
     keyStore.setEntry(privateKeyEntry.hashCode().toString, privateKeyEntry, protectionParam)
   }
-
-  override def doDelete(privateKeyEntry: PrivateKeyEntry, keyStore: KeyStore): Unit = {
-        keyStore.deleteEntry(privateKeyEntry.hashCode().toString)
-  }
-
   override def checkIsKnown(privateKeyEntry: PrivateKeyEntry): Boolean = {
         Manager.isKnownEntry(privateKeyEntry.hashCode().toString, keystoreName, password, keyStoreType)
   }
 }
 
-
-private[keystore] class SecretKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
+//TODO: Coverage
+private[keystore]
+class SecretKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
   extends KeyStoreEntryManager[SecretKeyEntry] {
 
   override val Manager: KeyStoreManager = keyStoreManager
@@ -108,9 +106,6 @@ private[keystore] class SecretKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: 
     keyStore.setEntry(secretKeyEntry.hashCode().toString, secretKeyEntry, protectionParam)
   }
 
-  override def doDelete(secretKeyEntry: SecretKeyEntry, keyStore: KeyStore): Unit = {
-    keyStore.deleteEntry(secretKeyEntry.hashCode().toString)
-  }
 
   override def checkIsKnown(secretKeyEntry: SecretKeyEntry): Boolean = {
     Manager.isKnownEntry(secretKeyEntry.hashCode().toString, keystoreName, password, keyStoreType)
