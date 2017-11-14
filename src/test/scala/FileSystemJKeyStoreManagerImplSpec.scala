@@ -59,6 +59,19 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     Files.exists(Paths.get(testKeyStoreName)) should be (false)
   }
 
+  it should "keyStoreExists" in {
+    //Given
+    val f = new FileOutputStream(testKeyStoreName)
+    keyStoreManager.create(testKeyStoreName, password).store(f, password.toCharArray)
+
+    //Then
+    keyStoreManager.keyStoreExists(testKeyStoreName)  should be (true)
+
+    //And
+    keyStoreManager.keyStoreExists("lalalla")  should be (false)
+  }
+
+
   it should "isKnownCertificate" in {
     //Given
     val f = new FileOutputStream(testKeyStoreName)

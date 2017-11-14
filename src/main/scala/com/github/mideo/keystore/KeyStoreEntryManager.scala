@@ -1,5 +1,6 @@
 package com.github.mideo.keystore
 
+import java.security.KeyStore.{PrivateKeyEntry, SecretKeyEntry}
 import java.security.cert.Certificate
 
 object KeyStoreEntryManager {
@@ -15,7 +16,13 @@ trait KeyStoreEntryManager[Entry] {
 private[keystore] class CertificateKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager) extends KeyStoreEntryManager[Certificate]{
 
   def save(certificate: Certificate, keystoreName: String = "keystore.jks", password: String = "password"): Unit = {
-    val keyStore = keyStoreManager.create(keystoreName, password)
+
+    val keyStore = if (keyStoreManager.keyStoreExists(keystoreName)) {
+      keyStoreManager.load(keystoreName, password)
+    } else {
+      keyStoreManager.create(keystoreName, password)
+    }
+
     keyStore.setCertificateEntry(certificate.hashCode().toString, certificate)
     keyStoreManager.save(keyStore, keystoreName, password)
 

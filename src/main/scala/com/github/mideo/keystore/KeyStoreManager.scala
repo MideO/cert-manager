@@ -7,13 +7,18 @@ import java.security.cert.Certificate
 
 
 object KeyStoreManager {
-  def FileSystemJKeyStoreManager = FileSystemJKeyStoreManagerImpl
+  def FileSystemJKeyStoreManager: KeyStoreManager = FileSystemJKeyStoreManagerImpl
 }
+
 trait KeyStoreManager {
   val KeyStoreType:String
+
+
   def create(keystoreAbsolutePath: String, password: String): KeyStore
 
   def load(keyStoreAbsolutePath: String, password: String): KeyStore
+
+  def keyStoreExists(keyStoreAbsolutePath: String): Boolean
 
   def isKnownCertificate(certificate: Certificate, keystoreName: String = "keystore.jks", password: String = "password"): Boolean
 
@@ -56,7 +61,7 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   override def delete(path: String): Unit = Files.delete(Paths.get(path))
 
   override def isKnownCertificate(certificate: Certificate, keystoreName: String, password: String): Boolean = {
-    if (!Files.exists(Paths.get(keystoreName))) {
+    if (!keyStoreExists(keystoreName)) {
       return false
     }
     val keyStore = load(keystoreName, password)
@@ -70,5 +75,9 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
     withCloseable(f, (f) => {
       keyStore.store(f.asInstanceOf[FileOutputStream], password.toCharArray)
     })
+  }
+
+  override def keyStoreExists(keyStoreAbsolutePath: String):Boolean = {
+    Files.exists(Paths.get(keyStoreAbsolutePath))
   }
 }
