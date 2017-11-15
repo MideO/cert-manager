@@ -18,8 +18,6 @@ object KeyStoreTypes extends Enumeration {
 
 
 trait KeyStoreManager {
-
-
   def create(keystoreAbsolutePath: String, password: String, keyStoreType: String): KeyStore
 
   def load(keyStoreAbsolutePath: String, password: String, keyStoreType: String): KeyStore
@@ -35,7 +33,6 @@ trait KeyStoreManager {
   def save(keyStore: KeyStore, keystoreName: String, password: String): Unit
 }
 
-//TODO: Error handling
 private[keystore] object FileSystemJKeyStoreManagerImpl
   extends KeyStoreManager {
 
@@ -57,7 +54,7 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
 
   override def load(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): KeyStore = {
     if (!keyStoreExists(keystoreAbsolutePath)) {
-      throw new KeyStoreManagerException(s"$keystoreAbsolutePath does not exist")
+      throw KeyStoreManagerException(s"No keystore found with name: $keystoreAbsolutePath")
     }
     val f: InputStream = Files.newInputStream(Paths.get(keystoreAbsolutePath), StandardOpenOption.READ)
     val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
@@ -68,11 +65,16 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
     keyStore
   }
 
-  override def delete(path: String): Unit = Files.delete(Paths.get(path))
+  override def delete(path: String): Unit = {
+    if (!keyStoreExists(path)) {
+      throw KeyStoreManagerException(s"No keystore found with name: $path")
+    }
+    Files.delete(Paths.get(path))
+  }
 
   override def isKnownCertificate(certificate: Certificate, keystoreName: String, password: String): Boolean = {
     if (!keyStoreExists(keystoreName)) {
-      return false
+      throw KeyStoreManagerException(s"No keystore found with name: $keystoreName")
     }
     val keyStore = load(keystoreName, password)
 
@@ -94,7 +96,7 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
 
   override def isKnownEntry(entry: Entry, keystoreName: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): Boolean = {
     if (!keyStoreExists(keystoreName)) {
-      return false
+      throw KeyStoreManagerException(s"No keystore found with name: $keystoreName")
     }
     val keyStore = load(keystoreName, password, keyStoreType)
     val protectionParam = new KeyStore.PasswordProtection(password.toCharArray)
@@ -104,4 +106,4 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   }
 }
 
-case class KeyStoreManagerException(str: String) extends Exception
+case class KeyStoreManagerException(private val message: String = "") extends Exception(message)

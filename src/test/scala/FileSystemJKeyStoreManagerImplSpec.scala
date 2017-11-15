@@ -3,7 +3,7 @@ import java.nio.file.{Files, Paths}
 import java.security.KeyStore
 import java.security.cert.Certificate
 
-import com.github.mideo.keystore.{KeyStoreManager, KeyStoreTypes}
+import com.github.mideo.keystore.{KeyStoreManager, KeyStoreManagerException, KeyStoreTypes}
 
 class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
   val keyStoreManager: KeyStoreManager = KeyStoreManager.FileSystemJKeyStoreManager
@@ -32,6 +32,14 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     keyStoreManager.keyStoreExists(testKeyStoreName) should be(true)
     keyStore.getType should be(KeyStoreTypes.DefaultKeyStoreType)
     Paths.get(testKeyStoreName) should not be null
+  }
+
+  it should "error if there is not keystore to load" in {
+    the [KeyStoreManagerException] thrownBy {
+      keyStoreManager.load("lalala", password, KeyStoreTypes.DefaultKeyStoreType)
+    } should have message "No keystore found with name: lalala"
+
+
   }
 
   it should "save" in {
@@ -83,7 +91,18 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
 
     //Then
     keyStoreManager.isKnownCertificate(certificate, testKeyStoreName, password) should be(false)
-    keyStoreManager.isKnownCertificate(certificate, "someUnKnownCertificate", "pass") should be(false)
+  }
+
+  it should "throw error if keystore doesn't exist for isKnownCertificate" in {
+
+    //When
+    val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
+
+
+    //Then
+    the [KeyStoreManagerException] thrownBy {
+      keyStoreManager.isKnownCertificate(certificate, "someUnKnownCertificate", "pass")
+    } should have message "No keystore found with name: someUnKnownCertificate"
 
   }
 
