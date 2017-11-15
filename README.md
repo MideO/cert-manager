@@ -1,6 +1,9 @@
-#### keystore Manager - WIP
+#### keystore Manager
 
 [![Build Status](https://travis-ci.org/MideO/keystore-manager.svg?branch=master)](https://travis-ci.org/MideO/keystore-manager)
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mideo/keystore-manager_2.11/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.mideo%22%20a%3A%22keystore-manager_2.11%22)
+
 
 ###### Key management module backed by Java KeyStore on file system as default storage
 
