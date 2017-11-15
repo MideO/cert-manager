@@ -17,6 +17,7 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     //Then
     keyStore.getType should be(KeyStoreTypes.DefaultKeyStoreType)
     Paths.get(testKeyStoreName) should not be null
+    keyStoreManager.keyStoreExists(testKeyStoreName) should be(false)
   }
 
   it should "load" in {
@@ -28,6 +29,7 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     val keyStore = keyStoreManager.load(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType)
 
     //Then
+    keyStoreManager.keyStoreExists(testKeyStoreName) should be(true)
     keyStore.getType should be(KeyStoreTypes.DefaultKeyStoreType)
     Paths.get(testKeyStoreName) should not be null
   }

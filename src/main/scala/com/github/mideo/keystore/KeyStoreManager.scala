@@ -56,6 +56,9 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   }
 
   override def load(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): KeyStore = {
+    if (!keyStoreExists(keystoreAbsolutePath)) {
+      throw new KeyStoreManagerException(s"$keystoreAbsolutePath does not exist")
+    }
     val f: InputStream = Files.newInputStream(Paths.get(keystoreAbsolutePath), StandardOpenOption.READ)
     val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
     withCloseable(f, (f) => {
@@ -100,3 +103,5 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
 
   }
 }
+
+case class KeyStoreManagerException(str: String) extends Exception
