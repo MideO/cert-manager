@@ -21,7 +21,7 @@ object KeyStoreEntryManager {
 
 trait KeyStoreEntryManager[Entry] {
   val Manager: KeyStoreManager
-  val keyStoreType:String = KeyStoreTypes.DefaultKeyStoreType
+  val keyStoreType:String = KeyStoreTypes.JKS
   val KeystoreName:String
   val Password:String
 
@@ -95,7 +95,7 @@ class SecretKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, k
   override val Manager: KeyStoreManager = keyStoreManager
   override val KeystoreName: String = keystoreName
   override val Password: String = password
-  override val keyStoreType:String = KeyStoreTypes.SecretKeyStoreType
+  override val keyStoreType:String = KeyStoreTypes.JCEKS
 
   override def doSave(secretKeyEntry: SecretKeyEntry, keyStore: KeyStore): Unit = {
     val protectionParam: KeyStore.ProtectionParameter = new PasswordProtection(Password.toCharArray)

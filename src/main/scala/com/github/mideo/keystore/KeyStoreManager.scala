@@ -12,8 +12,8 @@ object KeyStoreManager {
 }
 
 object KeyStoreTypes extends Enumeration {
-  val DefaultKeyStoreType: String = "JKS"
-  val SecretKeyStoreType: String = "JCEKS"
+  val JKS: String = "JKS"
+  val JCEKS: String = "JCEKS"
 }
 
 
@@ -36,7 +36,6 @@ trait KeyStoreManager {
 private[keystore] object FileSystemJKeyStoreManagerImpl
   extends KeyStoreManager {
 
-
   private def withCloseable(c: Closeable, func: (Closeable) => Unit): Unit = {
     try {
       func(c)
@@ -46,15 +45,15 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   }
 
 
-  override def create(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): KeyStore = {
+  override def create(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.JKS): KeyStore = {
     val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
     keyStore.load(null, password.toCharArray)
     keyStore
   }
 
-  override def load(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): KeyStore = {
+  override def load(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.JKS): KeyStore = {
     if (!keyStoreExists(keystoreAbsolutePath)) {
-      throw KeyStoreManagerException(s"No keystore found with name: $keystoreAbsolutePath")
+      throw new KeyStoreManagerException(s"No keystore found with name: $keystoreAbsolutePath")
     }
     val f: InputStream = Files.newInputStream(Paths.get(keystoreAbsolutePath), StandardOpenOption.READ)
     val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
@@ -67,14 +66,14 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
 
   override def delete(path: String): Unit = {
     if (!keyStoreExists(path)) {
-      throw KeyStoreManagerException(s"No keystore found with name: $path")
+      throw new KeyStoreManagerException(s"No keystore found with name: $path")
     }
     Files.delete(Paths.get(path))
   }
 
   override def isKnownCertificate(certificate: Certificate, keystoreName: String, password: String): Boolean = {
     if (!keyStoreExists(keystoreName)) {
-      throw KeyStoreManagerException(s"No keystore found with name: $keystoreName")
+      throw new KeyStoreManagerException(s"No keystore found with name: $keystoreName")
     }
     val keyStore = load(keystoreName, password)
 
@@ -94,9 +93,9 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
     Files.exists(Paths.get(keyStoreAbsolutePath))
   }
 
-  override def isKnownEntry(entry: Entry, keystoreName: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): Boolean = {
+  override def isKnownEntry(entry: Entry, keystoreName: String, password: String, keyStoreType: String = KeyStoreTypes.JKS): Boolean = {
     if (!keyStoreExists(keystoreName)) {
-      throw KeyStoreManagerException(s"No keystore found with name: $keystoreName")
+      throw new KeyStoreManagerException(s"No keystore found with name: $keystoreName")
     }
     val keyStore = load(keystoreName, password, keyStoreType)
     val protectionParam = new KeyStore.PasswordProtection(password.toCharArray)
@@ -106,4 +105,4 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   }
 }
 
-case class KeyStoreManagerException(private val message: String = "") extends Exception(message)
+class KeyStoreManagerException(private val message: String) extends Exception(message)

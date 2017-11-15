@@ -1,6 +1,7 @@
+import java.io.FileOutputStream
 import java.security.KeyStore.PrivateKeyEntry
 
-import com.github.mideo.keystore.{KeyStoreEntryManager, KeyStoreManager, KeyStoreManagerException}
+import com.github.mideo.keystore.{KeyStoreEntryManager, KeyStoreManager, KeyStoreManagerException, KeyStoreTypes}
 
 class PrivateKeyEntryKeyStoreEntryManagerImplSpec extends TestSpec {
   behavior of "PrivateKeyManager"
@@ -14,6 +15,23 @@ class PrivateKeyEntryKeyStoreEntryManagerImplSpec extends TestSpec {
     //Then
     privateKeyManager.isKnown(testPrivateKeyEntry) should be(true)
   }
+
+  it should "save if keystore exists" in {
+
+    //Given
+    KeyStoreManager
+      .FileSystemJKeyStoreManager
+      .create(testKeyStoreName, password = password, KeyStoreTypes.JKS)
+      .store(new FileOutputStream(testKeyStoreName), password.toCharArray)
+
+    //When
+    privateKeyManager.save(testPrivateKeyEntry)
+
+    //Then
+    privateKeyManager.isKnown(testPrivateKeyEntry) should be(true)
+
+  }
+
 
   it should "isKnown" in {
     //Given
@@ -45,5 +63,12 @@ class PrivateKeyEntryKeyStoreEntryManagerImplSpec extends TestSpec {
 
     //Then
     privateKeyManager.isKnown(testPrivateKeyEntry) should be(false)
+  }
+
+  it should "error if keystore does exist for delete" in {
+
+    the [KeyStoreManagerException] thrownBy {
+      privateKeyManager.delete(testPrivateKeyEntry)
+    } should have message "No keystore found with name: MyKeyStore.jks"
   }
 }

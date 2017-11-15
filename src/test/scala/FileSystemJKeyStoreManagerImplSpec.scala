@@ -12,10 +12,10 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
 
   it should "create" in {
     //When
-    val keyStore: KeyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType)
+    val keyStore: KeyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.JKS)
 
     //Then
-    keyStore.getType should be(KeyStoreTypes.DefaultKeyStoreType)
+    keyStore.getType should be(KeyStoreTypes.JKS)
     Paths.get(testKeyStoreName) should not be null
     keyStoreManager.keyStoreExists(testKeyStoreName) should be(false)
   }
@@ -23,29 +23,27 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
   it should "load" in {
     //Given
     val f = new FileOutputStream(testKeyStoreName)
-    keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType).store(f, password.toCharArray)
+    keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.JKS).store(f, password.toCharArray)
 
     //When
-    val keyStore = keyStoreManager.load(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType)
+    val keyStore = keyStoreManager.load(testKeyStoreName, password, KeyStoreTypes.JKS)
 
     //Then
     keyStoreManager.keyStoreExists(testKeyStoreName) should be(true)
-    keyStore.getType should be(KeyStoreTypes.DefaultKeyStoreType)
+    keyStore.getType should be(KeyStoreTypes.JKS)
     Paths.get(testKeyStoreName) should not be null
   }
 
   it should "error if there is not keystore to load" in {
     the [KeyStoreManagerException] thrownBy {
-      keyStoreManager.load("lalala", password, KeyStoreTypes.DefaultKeyStoreType)
+      keyStoreManager.load("lalala", password, KeyStoreTypes.JKS)
     } should have message "No keystore found with name: lalala"
-
-
   }
 
   it should "save" in {
     //Given
 
-    val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType)
+    val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.JKS)
 
     //When
     keyStoreManager.save(keyStore, testKeyStoreName, password)
@@ -53,12 +51,14 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     //Then
     Files.exists(Paths.get(testKeyStoreName)) should be(true)
 
+    //When
+
   }
 
   it should "delete" in {
     //Given
     val f = new FileOutputStream(testKeyStoreName)
-    keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType).store(f, password.toCharArray)
+    keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.JKS).store(f, password.toCharArray)
 
     //When
     keyStoreManager.delete(testKeyStoreName)
@@ -67,10 +67,17 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     Files.exists(Paths.get(testKeyStoreName)) should be(false)
   }
 
+  it should "error if keystore does exist for delete" in {
+
+    the [KeyStoreManagerException] thrownBy {
+      keyStoreManager.delete("lalalala")
+    } should have message "No keystore found with name: lalalala"
+  }
+
   it should "keyStoreExists" in {
     //Given
     val f = new FileOutputStream(testKeyStoreName)
-    keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType).store(f, password.toCharArray)
+    keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.JKS).store(f, password.toCharArray)
 
     //Then
     keyStoreManager.keyStoreExists(testKeyStoreName) should be(true)
@@ -83,11 +90,10 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
   it should "isKnownCertificate" in {
     //Given
     val f = new FileOutputStream(testKeyStoreName)
-    keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType).store(f, password.toCharArray)
+    keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.JKS).store(f, password.toCharArray)
 
     //When
     val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
-
 
     //Then
     keyStoreManager.isKnownCertificate(certificate, testKeyStoreName, password) should be(false)
@@ -98,7 +104,6 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     //When
     val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
 
-
     //Then
     the [KeyStoreManagerException] thrownBy {
       keyStoreManager.isKnownCertificate(certificate, "someUnKnownCertificate", "pass")
@@ -108,7 +113,7 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
 
   it should "isKnownEntry PrivateKey" in {
     //Given
-    val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType)
+    val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.JKS)
 
     //When
     keyStore.setEntry(testPrivateKeyEntry.hashCode().toString, testPrivateKeyEntry, protectionParam)
@@ -117,14 +122,14 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
 
 
     //Then
-    keyStoreManager.isKnownEntry(testPrivateKeyEntry, testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType) should be(true)
+    keyStoreManager.isKnownEntry(testPrivateKeyEntry, testKeyStoreName, password, KeyStoreTypes.JKS) should be(true)
 
 
   }
 
   it should "isKnownEntry SecretKey" in {
     //Given
-    val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.SecretKeyStoreType)
+    val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.JCEKS)
 
 
     //When
@@ -133,7 +138,7 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
 
 
     //Then
-    keyStoreManager.isKnownEntry(testSecretKeyEntry, testKeyStoreName, password, KeyStoreTypes.SecretKeyStoreType) should be(true)
+    keyStoreManager.isKnownEntry(testSecretKeyEntry, testKeyStoreName, password, KeyStoreTypes.JCEKS) should be(true)
 
 
   }
