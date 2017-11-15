@@ -7,7 +7,7 @@
 ###### Usage
 
 ```scala
-    //save certficatificate
+    //save certficatificate with default FileSystemJKeyStoreManager
     val certificates: Array[Certificate] = 	httpsURLConnection.getServerCertificates()
     val certManager: KeyStoreEntryManager = KeyStoreEntryManager.CertificateManager(KeyStoreManager.FileSystemJKeyStoreManager)
     
@@ -46,6 +46,42 @@
     
     val mongoCertManager: KeyStoreEntryManager = KeyStoreEntryManager.CertificateManager(MongoJKeyStoreManagerImpl)
     
+    
+    //save private key entry
+      protected def makePrivateKeyEntry():PrivateKeyEntry = {
+        val gen = new CertAndKeyGen("RSA", "SHA1WithRSA")
+        gen.generate(1024)
+        val pk: PrivateKey = gen.getPrivateKey
+        val cert: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
+        new PrivateKeyEntry(pk, Array(cert))
+      }
+    
+      val testPrivateKeyEntry: PrivateKeyEntry = makePrivateKeyEntry()
+      val privateKeyManager: KeyStoreEntryManager[PrivateKeyEntry] = KeyStoreEntryManager
+        .PrivateKeyEntryManager(KeyStoreManager.FileSystemJKeyStoreManager, testKeyStoreName, password)
+
+      privateKeyManager.save(testPrivateKeyEntry)
+   
+   // check is known private key
+      privateKeyManager.isKnown(testPrivateKeyEntry) should be(true)
+    //delete private key entry
+    privateKeyManager.delete(testPrivateKeyEntry)
+    
+    
+    
+    
+    //save a secret key entry
+      val testSecretKeyEntry = new KeyStore.SecretKeyEntry(
+        new SecretKeySpec(password.getBytes(), 0, password.getBytes().length, "AES"))
+      val secretKeyManager: KeyStoreEntryManager[SecretKeyEntry] = KeyStoreEntryManager
+        .SecretKeyEntryManager(KeyStoreManager.FileSystemJKeyStoreManager, testKeyStoreName, password)       
+     secretKeyManager.save(testSecretKeyEntry)
+    
+    //check is known secret key entry
+    secretKeyManager.isKnown(testSecretKeyEntry) 
+     
+    //delete secret key entry
+    secretKeyManager.delete(testSecretKeyEntry)
     
     
 ```

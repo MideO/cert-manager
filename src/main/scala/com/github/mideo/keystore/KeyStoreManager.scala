@@ -3,6 +3,7 @@ package com.github.mideo.keystore
 import java.io.{Closeable, FileOutputStream, InputStream}
 import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.security.KeyStore
+import java.security.KeyStore.Entry
 import java.security.cert.Certificate
 
 
@@ -19,16 +20,15 @@ object KeyStoreTypes extends Enumeration {
 trait KeyStoreManager {
 
 
+  def create(keystoreAbsolutePath: String, password: String, keyStoreType: String): KeyStore
 
-  def create(keystoreAbsolutePath: String, password: String, keyStoreType:String): KeyStore
-
-  def load(keyStoreAbsolutePath: String, password: String, keyStoreType:String): KeyStore
+  def load(keyStoreAbsolutePath: String, password: String, keyStoreType: String): KeyStore
 
   def keyStoreExists(keyStoreAbsolutePath: String): Boolean
 
   def isKnownCertificate(certificate: Certificate, keystoreName: String = "keystore.jks", password: String = "password"): Boolean
 
-  def isKnownEntry(entryName: String, keystoreName: String = "keystore.jks", password: String = "password", keyStoreType:String): Boolean
+  def isKnownEntry(entry: Entry, keystoreName: String = "keystore.jks", password: String = "password", keyStoreType: String): Boolean
 
   def delete(path: String): Unit
 
@@ -49,13 +49,13 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   }
 
 
-  override def create(keystoreAbsolutePath: String, password: String, keyStoreType:String = KeyStoreTypes.DefaultKeyStoreType): KeyStore = {
+  override def create(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): KeyStore = {
     val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
     keyStore.load(null, password.toCharArray)
     keyStore
   }
 
-  override def load(keystoreAbsolutePath: String, password: String, keyStoreType:String = KeyStoreTypes.DefaultKeyStoreType): KeyStore = {
+  override def load(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): KeyStore = {
     val f: InputStream = Files.newInputStream(Paths.get(keystoreAbsolutePath), StandardOpenOption.READ)
     val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
     withCloseable(f, (f) => {
@@ -73,7 +73,8 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
     }
     val keyStore = load(keystoreName, password)
 
-    keyStore.isCertificateEntry(certificate.hashCode().toString)
+    keyStore.isCertificateEntry(certificate.hashCode().toString) &&
+      keyStore.getCertificate(certificate.hashCode().toString).equals(certificate)
 
   }
 
@@ -88,12 +89,14 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
     Files.exists(Paths.get(keyStoreAbsolutePath))
   }
 
-  override def isKnownEntry(entryName: String, keystoreName: String, password: String, keyStoreType:String =KeyStoreTypes.DefaultKeyStoreType): Boolean = {
+  override def isKnownEntry(entry: Entry, keystoreName: String, password: String, keyStoreType: String = KeyStoreTypes.DefaultKeyStoreType): Boolean = {
     if (!keyStoreExists(keystoreName)) {
       return false
     }
     val keyStore = load(keystoreName, password, keyStoreType)
-    keyStore.isKeyEntry(entryName)
+    val protectionParam = new KeyStore.PasswordProtection(password.toCharArray)
+    keyStore.isKeyEntry(entry.hashCode().toString) &&
+      keyStore.getEntry(entry.hashCode().toString, protectionParam).toString.equals(entry.toString)
 
   }
 }

@@ -90,13 +90,13 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType)
 
     //When
-    keyStore.setEntry(key.hashCode().toString, testPrivateKeyEntry, protectionParam)
+    keyStore.setEntry(testPrivateKeyEntry.hashCode().toString, testPrivateKeyEntry, protectionParam)
 
     keyStoreManager.save(keyStore, testKeyStoreName, password)
 
 
     //Then
-    keyStoreManager.isKnownEntry(key.hashCode().toString, testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType) should be(true)
+    keyStoreManager.isKnownEntry(testPrivateKeyEntry, testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType) should be(true)
 
 
   }
@@ -107,12 +107,12 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
 
 
     //When
-    keyStore.setEntry(key.hashCode().toString, testSecretKeyEntry, protectionParam)
+    keyStore.setEntry(testSecretKeyEntry.hashCode().toString, testSecretKeyEntry, protectionParam)
     keyStoreManager.save(keyStore, testKeyStoreName, password)
 
 
     //Then
-    keyStoreManager.isKnownEntry(key.hashCode().toString, testKeyStoreName, password, KeyStoreTypes.SecretKeyStoreType) should be(true)
+    keyStoreManager.isKnownEntry(testSecretKeyEntry, testKeyStoreName, password, KeyStoreTypes.SecretKeyStoreType) should be(true)
 
 
   }

@@ -49,8 +49,6 @@ trait KeyStoreEntryManager[Entry] {
 
   def doSave(entry: Entry, keyStore: KeyStore): Unit
 
-  def doDelete(entry: Entry, keyStore: KeyStore): Unit = keyStore.deleteEntry(entry.hashCode().toString)
-
   def checkIsKnown(entry: Entry): Boolean
 }
 
@@ -86,7 +84,7 @@ class PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, 
     keyStore.setEntry(privateKeyEntry.hashCode().toString, privateKeyEntry, protectionParam)
   }
   override def checkIsKnown(privateKeyEntry: PrivateKeyEntry): Boolean = {
-        Manager.isKnownEntry(privateKeyEntry.hashCode().toString, keystoreName, password, keyStoreType)
+        Manager.isKnownEntry(privateKeyEntry, keystoreName, password, keyStoreType)
   }
 }
 
@@ -106,6 +104,6 @@ class SecretKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, k
 
 
   override def checkIsKnown(secretKeyEntry: SecretKeyEntry): Boolean = {
-    Manager.isKnownEntry(secretKeyEntry.hashCode().toString, keystoreName, password, keyStoreType)
+    Manager.isKnownEntry(secretKeyEntry, keystoreName, password, keyStoreType)
   }
 }
