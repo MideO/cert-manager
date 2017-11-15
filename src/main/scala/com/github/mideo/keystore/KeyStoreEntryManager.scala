@@ -47,9 +47,9 @@ trait KeyStoreEntryManager[Entry] {
     checkIsKnown(entry)
   }
 
-  def doSave(entry: Entry, keyStore: KeyStore)
+  def doSave(entry: Entry, keyStore: KeyStore): Unit
 
-  def doDelete(entry: Entry, keyStore: KeyStore) = keyStore.deleteEntry(entry.hashCode().toString)
+  def doDelete(entry: Entry, keyStore: KeyStore): Unit = keyStore.deleteEntry(entry.hashCode().toString)
 
   def checkIsKnown(entry: Entry): Boolean
 }
@@ -73,7 +73,6 @@ class CertificateKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keys
 
 }
 
-//TODO: Coverage
 private[keystore]
 class PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
   extends KeyStoreEntryManager[PrivateKeyEntry] {
@@ -91,7 +90,6 @@ class PrivateKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, 
   }
 }
 
-//TODO: Coverage
 private[keystore]
 class SecretKeyEntryKeyStoreEntryManagerImpl(keyStoreManager: KeyStoreManager, keystoreName: String , password: String )
   extends KeyStoreEntryManager[SecretKeyEntry] {

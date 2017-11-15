@@ -1,6 +1,5 @@
 import java.security.cert.Certificate
 
-import com.github.mideo.TestSpec
 import com.github.mideo.keystore.{KeyStoreEntryManager, KeyStoreManager}
 
 class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
@@ -9,11 +8,10 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
   val certificateManager: KeyStoreEntryManager[Certificate] = KeyStoreEntryManager
     .CertificateManager(KeyStoreManager.FileSystemJKeyStoreManager, testKeyStoreName, password)
 
+  val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
+
 
   it should "save" in {
-    //Given
-    val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
-
     //When
     certificateManager.save(certificate)
 
@@ -23,19 +21,12 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
   }
 
   it should "isKnown" in {
-    //When
-    val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
-
-
     //Then
     certificateManager.isKnown(certificate) should be(false)
 
   }
 
   it should "delete" in {
-    //Given
-    val certificate: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
-
     //When
     certificateManager.save(certificate)
 
@@ -48,9 +39,6 @@ class CertificateKeyStoreEntryManagerImplSpec extends TestSpec {
 
     //Then
     certificateManager.isKnown(certificate) should be(false)
-
-
-
   }
 
 }

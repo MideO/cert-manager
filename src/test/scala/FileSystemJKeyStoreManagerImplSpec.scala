@@ -1,15 +1,9 @@
-package com.github.mideo
-
 import java.io.FileOutputStream
 import java.nio.file.{Files, Paths}
 import java.security.KeyStore
-import java.security.KeyStore.PrivateKeyEntry
 import java.security.cert.Certificate
-import javax.crypto.SecretKey
-import javax.crypto.spec.SecretKeySpec
 
 import com.github.mideo.keystore.{KeyStoreManager, KeyStoreTypes}
-import sun.security.tools.keytool.CertAndKeyGen
 
 class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
   val keyStoreManager: KeyStoreManager = KeyStoreManager.FileSystemJKeyStoreManager
@@ -95,15 +89,8 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     //Given
     val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.DefaultKeyStoreType)
 
-    val gen = new CertAndKeyGen("RSA", "SHA1WithRSA")
-    gen.generate(1024)
-    val key = gen.getPrivateKey
-    val cert: Certificate = certificateFactory.generateCertificate(getResourceFile("selfsigned.cert"))
-
-    val protParam = new KeyStore.PasswordProtection(password.toCharArray)
-
     //When
-    keyStore.setEntry(key.hashCode().toString, new PrivateKeyEntry(key, Array(cert)), protParam)
+    keyStore.setEntry(key.hashCode().toString, testPrivateKeyEntry, protectionParam)
 
     keyStoreManager.save(keyStore, testKeyStoreName, password)
 
@@ -118,14 +105,9 @@ class FileSystemJKeyStoreManagerImplSpec extends TestSpec {
     //Given
     val keyStore = keyStoreManager.create(testKeyStoreName, password, KeyStoreTypes.SecretKeyStoreType)
 
-    val mySecretKey: SecretKey = new SecretKeySpec(password.getBytes(), 0, password.getBytes().length, "AES")
-
-    val skEntry = new KeyStore.SecretKeyEntry(mySecretKey)
-
-    val protParam = new KeyStore.PasswordProtection(password.toCharArray)
 
     //When
-    keyStore.setEntry(key.hashCode().toString, skEntry, protParam)
+    keyStore.setEntry(key.hashCode().toString, testSecretKeyEntry, protectionParam)
     keyStoreManager.save(keyStore, testKeyStoreName, password)
 
 
