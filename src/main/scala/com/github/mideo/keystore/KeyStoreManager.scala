@@ -5,6 +5,8 @@ import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.security.KeyStore
 import java.security.KeyStore.Entry
 import java.security.cert.Certificate
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
 object KeyStoreManager {
@@ -44,6 +46,14 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
     }
   }
 
+  private def checkFileExists(keystoreName: String): Unit = {
+
+    if (!keyStoreExists(keystoreName)) {
+      throw new KeyStoreManagerException(s"No keystore found with name: $keystoreName")
+    }
+
+  }
+
 
   override def create(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.JKS): KeyStore = {
     val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
@@ -52,9 +62,7 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   }
 
   override def load(keystoreAbsolutePath: String, password: String, keyStoreType: String = KeyStoreTypes.JKS): KeyStore = {
-    if (!keyStoreExists(keystoreAbsolutePath)) {
-      throw new KeyStoreManagerException(s"No keystore found with name: $keystoreAbsolutePath")
-    }
+    checkFileExists(keystoreAbsolutePath)
     val f: InputStream = Files.newInputStream(Paths.get(keystoreAbsolutePath), StandardOpenOption.READ)
     val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
     withCloseable(f, (f) => {
@@ -65,16 +73,13 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   }
 
   override def delete(path: String): Unit = {
-    if (!keyStoreExists(path)) {
-      throw new KeyStoreManagerException(s"No keystore found with name: $path")
-    }
+    checkFileExists(path)
     Files.delete(Paths.get(path))
+
   }
 
   override def isKnownCertificate(certificate: Certificate, keystoreName: String, password: String): Boolean = {
-    if (!keyStoreExists(keystoreName)) {
-      throw new KeyStoreManagerException(s"No keystore found with name: $keystoreName")
-    }
+    checkFileExists(keystoreName)
     val keyStore = load(keystoreName, password)
 
     keyStore.isCertificateEntry(certificate.hashCode().toString) &&
@@ -94,9 +99,7 @@ private[keystore] object FileSystemJKeyStoreManagerImpl
   }
 
   override def isKnownEntry(entry: Entry, keystoreName: String, password: String, keyStoreType: String = KeyStoreTypes.JKS): Boolean = {
-    if (!keyStoreExists(keystoreName)) {
-      throw new KeyStoreManagerException(s"No keystore found with name: $keystoreName")
-    }
+    checkFileExists(keystoreName)
     val keyStore = load(keystoreName, password, keyStoreType)
     val protectionParam = new KeyStore.PasswordProtection(password.toCharArray)
     keyStore.isKeyEntry(entry.hashCode().toString) &&
