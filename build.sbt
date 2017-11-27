@@ -2,7 +2,9 @@ name := "keystore-manager"
 
 scalaVersion := "2.11.12"
 
-description := "A Certificate manager backed by Java KeyStore on file system as default storage"
+crossScalaVersions := Seq("2.11.12", "2.12.4")
+
+description := "A keystore manager backed by Java KeyStore on file system as default storage"
 
 resolvers ++= Seq(
   "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
@@ -11,7 +13,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest" % "scalatest_2.11" % "3.0.4" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 )
 
 parallelExecution in Test := false
