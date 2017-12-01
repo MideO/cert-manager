@@ -46,12 +46,12 @@ publishTo := {
 
 licenses := Seq("BSD-style" -> url("http://www.opensource.org/licenses/bsd-license.php"))
 
-homepage := Some(url("https://github.com/MideO/sssh"))
+homepage := Some(url("https://github.com/MideO/keystore-manager"))
 
 scmInfo := Some(
   ScmInfo(
-    url("https://github.com/MideO/sssh"),
-    "scm:git@github.com/MideO/sssh"
+    url("https://github.com/MideO/keystore-manager"),
+    "scm:git@github.com/MideO/keystore-manager"
   )
 )
 
